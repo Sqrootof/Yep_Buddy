@@ -10,7 +10,7 @@ public class FillinAchievement : MonoBehaviour
     {
         //读取和保存成就
         Whole.firstLogin = PlayerPrefs.GetInt("firstLogin");
-
+        //Whole.firstLogin = 0;
         if (Whole.firstLogin == 0)
         {
             FillAchievement();
@@ -27,12 +27,20 @@ public class FillinAchievement : MonoBehaviour
     void FillAchievement()
     {
         Whole.achievements.AddRange(achievements);
+        SaveAchievements();
     }
-
+    public void SaveAchievements()
+    {
+        // 将成就数据转为JSON字符串并保存到PlayerPrefs
+        string json = JsonUtility.ToJson(new AchievementList { achievements = Whole.achievements });
+        PlayerPrefs.SetString("Achievements", json);
+        PlayerPrefs.Save(); // 确保数据被写入
+    }
     public void LoadAchievements()
     {
         // 从PlayerPrefs中加载成就数据
         string json = PlayerPrefs.GetString("Achievements", "[]");
+        Debug.Log(json);
         List<Achievement> loadedAchievements = JsonUtility.FromJson<AchievementList>(json).achievements;
 
         // 更新Whole.achievements列表
