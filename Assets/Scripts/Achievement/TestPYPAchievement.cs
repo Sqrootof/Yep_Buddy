@@ -1,4 +1,4 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -14,13 +14,13 @@ public class TestPYPAchievement : MonoBehaviour
     {
         if(Input.GetKeyDown(KeyCode.J))
         {
-            // ÕÒµ½¶ÔÓ¦³É¾ÍµÄË÷Òı
-            int achievementIndex = Whole.achievements.FindIndex(a => a.name == "µÚÒ»¸ö³É¾Í");
+            // æ‰¾åˆ°å¯¹åº”æˆå°±çš„ç´¢å¼•
+            int achievementIndex = Whole.achievements.FindIndex(a => a.name == "ç¬¬ä¸€ä¸ªæˆå°±");
 
-            // ¼ì²é³É¾ÍÊÇ·ñ´æÔÚÇÒÎ´½âËø
+            // æ£€æŸ¥æˆå°±æ˜¯å¦å­˜åœ¨ä¸”æœªè§£é”
             if (achievementIndex != -1 && Whole.achievements[achievementIndex].isUnlocked == false)
             {
-                achievementManager.UnlockAchievement("µÚÒ»¸ö³É¾Í");
+                achievementManager.UnlockAchievement("ç¬¬ä¸€ä¸ªæˆå°±");
             }
         }
     }

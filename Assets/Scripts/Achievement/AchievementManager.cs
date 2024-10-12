@@ -1,46 +1,46 @@
-using System.Collections.Generic;
+ï»¿using System.Collections.Generic;
 using UnityEngine;
 
 public class AchievementManager : MonoBehaviour
 {
     //private void Start()
     //{
-    //    LoadAchievements(); // ÓÎÏ·Æô¶¯Ê±¼ÓÔØ³É¾ÍÊı¾İ
+    //    LoadAchievements(); // æ¸¸æˆå¯åŠ¨æ—¶åŠ è½½æˆå°±æ•°æ®
     //}
 
     public void UnlockAchievement(string achievementName)
     {
-        // ²éÕÒ¶ÔÓ¦Ãû³ÆµÄ³É¾Í
+        // æŸ¥æ‰¾å¯¹åº”åç§°çš„æˆå°±
         Achievement achievement = Whole.achievements.Find(a => a.name == achievementName);
 
         if (achievement != null && !achievement.isUnlocked)
         {
-            achievement.isUnlocked = true; // ½âËø³É¾Í
+            achievement.isUnlocked = true; // è§£é”æˆå°±
             Debug.Log($"Achievement Unlocked: {achievement.name}");
-            SaveAchievements(); // ½âËøºó±£´æ³É¾ÍÊı¾İ
+            SaveAchievements(); // è§£é”åä¿å­˜æˆå°±æ•°æ®
         }
     }
 
     //public void LoadAchievements()
     //{
-    //    // ´ÓPlayerPrefsÖĞ¼ÓÔØ³É¾ÍÊı¾İ
+    //    // ä»PlayerPrefsä¸­åŠ è½½æˆå°±æ•°æ®
     //    string json = PlayerPrefs.GetString("Achievements", "[]");
     //    List<Achievement> loadedAchievements = JsonUtility.FromJson<AchievementList>(json).achievements;
 
-    //    // ¸üĞÂWhole.achievementsÁĞ±í
+    //    // æ›´æ–°Whole.achievementsåˆ—è¡¨
     //    Whole.achievements = loadedAchievements;
     //}
 
     public void SaveAchievements()
     {
-        // ½«³É¾ÍÊı¾İ×ªÎªJSON×Ö·û´®²¢±£´æµ½PlayerPrefs
+        // å°†æˆå°±æ•°æ®è½¬ä¸ºJSONå­—ç¬¦ä¸²å¹¶ä¿å­˜åˆ°PlayerPrefs
         string json = JsonUtility.ToJson(new AchievementList { achievements = Whole.achievements });
         PlayerPrefs.SetString("Achievements", json);
-        PlayerPrefs.Save(); // È·±£Êı¾İ±»Ğ´Èë
+        PlayerPrefs.Save(); // ç¡®ä¿æ•°æ®è¢«å†™å…¥
     }
 }
 
-// ÓÃÓÚ´¦ÀíAchievementµÄĞòÁĞ»¯
+// ç”¨äºå¤„ç†Achievementçš„åºåˆ—åŒ–
 [System.Serializable]
 public class AchievementList
 {

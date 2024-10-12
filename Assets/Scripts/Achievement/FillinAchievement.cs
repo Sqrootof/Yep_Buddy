@@ -1,17 +1,22 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class FillinAchievement : MonoBehaviour
 {
-    public List<Achievement> achievements = new List<Achievement>(); //³É¾ÍÁĞ±í
+    public List<Achievement> achievements = new List<Achievement>(); //æˆå°±åˆ—è¡¨
     // Start is called before the first frame update
     void Start()
     {
+        //è¯»å–å’Œä¿å­˜æˆå°±
+        Whole.firstLogin = PlayerPrefs.GetInt("firstLogin");
+
         if (Whole.firstLogin == 0)
         {
             FillAchievement();
             Whole.firstLogin++;
+            PlayerPrefs.SetInt("firstLogin", Whole.firstLogin);
+            PlayerPrefs.Save();
         }
         else
         {
@@ -26,11 +31,11 @@ public class FillinAchievement : MonoBehaviour
 
     public void LoadAchievements()
     {
-        // ´ÓPlayerPrefsÖĞ¼ÓÔØ³É¾ÍÊı¾İ
+        // ä»PlayerPrefsä¸­åŠ è½½æˆå°±æ•°æ®
         string json = PlayerPrefs.GetString("Achievements", "[]");
         List<Achievement> loadedAchievements = JsonUtility.FromJson<AchievementList>(json).achievements;
 
-        // ¸üĞÂWhole.achievementsÁĞ±í
+        // æ›´æ–°Whole.achievementsåˆ—è¡¨
         Whole.achievements = loadedAchievements;
     }
 }
