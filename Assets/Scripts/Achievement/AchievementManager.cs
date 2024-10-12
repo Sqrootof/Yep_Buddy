@@ -3,48 +3,46 @@ using UnityEngine;
 
 public class AchievementManager : MonoBehaviour
 {
-    private List<Achievement> achievements = new List<Achievement>();
-
-    private void Start()
-    {
-        LoadAchievements();
-    }
+    //private void Start()
+    //{
+    //    LoadAchievements(); // 游戏启动时加载成就数据
+    //}
 
     public void UnlockAchievement(string achievementName)
     {
-        Achievement achievement = achievements.Find(a => a.name == achievementName);
+        // 查找对应名称的成就
+        Achievement achievement = Whole.achievements.Find(a => a.name == achievementName);
+
         if (achievement != null && !achievement.isUnlocked)
         {
-            achievement.isUnlocked = true;
-            SaveAchievements();
+            achievement.isUnlocked = true; // 解锁成就
+            Debug.Log($"Achievement Unlocked: {achievement.name}");
+            SaveAchievements(); // 解锁后保存成就数据
         }
     }
 
-    private void LoadAchievements()
-    {
-        // 从 PlayerPrefs 或文件加载成就状态
-        int count = PlayerPrefs.GetInt("AchievementCount", 0);
-        for (int i = 0; i < count; i++)
-        {
-            string name = PlayerPrefs.GetString($"Achievement_{i}_Name");
-            bool isUnlocked = PlayerPrefs.GetInt($"Achievement_{i}_Unlocked") == 1;
-            achievements.Add(new Achievement(name) { isUnlocked = isUnlocked });
-        }
-    }
+    //public void LoadAchievements()
+    //{
+    //    // 从PlayerPrefs中加载成就数据
+    //    string json = PlayerPrefs.GetString("Achievements", "[]");
+    //    List<Achievement> loadedAchievements = JsonUtility.FromJson<AchievementList>(json).achievements;
 
-    private void SaveAchievements()
-    {
-        PlayerPrefs.SetInt("AchievementCount", achievements.Count);
-        for (int i = 0; i < achievements.Count; i++)
-        {
-            PlayerPrefs.SetString($"Achievement_{i}_Name", achievements[i].name);
-            PlayerPrefs.SetInt($"Achievement_{i}_Unlocked", achievements[i].isUnlocked ? 1 : 0);
-        }
-        PlayerPrefs.Save();
-    }
+    //    // 更新Whole.achievements列表
+    //    Whole.achievements = loadedAchievements;
+    //}
 
-    public List<Achievement> GetAchievements()
+    public void SaveAchievements()
     {
-        return achievements;
+        // 将成就数据转为JSON字符串并保存到PlayerPrefs
+        string json = JsonUtility.ToJson(new AchievementList { achievements = Whole.achievements });
+        PlayerPrefs.SetString("Achievements", json);
+        PlayerPrefs.Save(); // 确保数据被写入
     }
+}
+
+// 用于处理Achievement的序列化
+[System.Serializable]
+public class AchievementList
+{
+    public List<Achievement> achievements;
 }
