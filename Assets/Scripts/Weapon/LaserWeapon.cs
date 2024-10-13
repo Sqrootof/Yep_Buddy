@@ -55,74 +55,7 @@ public class LaserWeapon : MonoBehaviour
         return mouseWorldPosition;
     }
 
-    //private void UpdateLaser(Vector3 targetPosition)
-    //{
-    //    // 激光的起始点是武器的位置
-    //    Vector3 startPosition = transform.position;
-    //    Vector3 laserDirection = targetPosition - startPosition;
-
-    //    // 使用射线检测
-    //    RaycastHit hit;
-    //    float laserMaxDistance = 100f;
-
-    //    // 初始化激光线段位置
-    //    lineRenderer.SetPosition(0, startPosition); // 激光的起点
-    //    lineRenderer.SetPosition(1, startPosition); // 初始化反射点与起点相同
-
-    //    // 第一次射线检测
-    //    if (Physics.Raycast(startPosition, laserDirection, out hit, laserMaxDistance, obstacleLayer | enemyLayer))
-    //    {
-    //        // 更新激光的反射点为击中点
-    //        Vector3 firstHitPoint = hit.point;
-    //        lineRenderer.SetPosition(1, firstHitPoint); // 激光的反射点
-
-    //        // 检测是否击中敌人
-    //        if ((enemyLayer & (1 << hit.collider.gameObject.layer)) != 0)
-    //        {
-    //            EnemyPYPTest enemyHealth = hit.collider.GetComponent<EnemyPYPTest>();
-    //            if (enemyHealth != null)
-    //            {
-    //                enemyHealth.health -= damageAmount; // 对敌人造成伤害
-    //            }
-
-    //            // 从敌人击中点继续检测
-    //            Vector3 reflectDirection = laserDirection.normalized; // 使用相同的激光方向
-    //            if (Physics.Raycast(firstHitPoint, reflectDirection, out hit, laserMaxDistance, obstacleLayer))
-    //            {
-    //                // 更新终点为第二次碰撞点
-    //                lineRenderer.SetPosition(2, hit.point); // 激光的终点是第二次碰撞点
-    //            }
-    //            else
-    //            {
-    //                // 没有碰到障碍物，激光达到最大射程
-    //                lineRenderer.SetPosition(2, firstHitPoint + reflectDirection * (laserMaxDistance - hit.distance)); // 激光的终点
-    //            }
-    //        }
-    //        else
-    //        {
-    //            // 如果碰到障碍物但不是敌人，激光停止
-    //            lineRenderer.SetPosition(2, firstHitPoint); // 激光的终点
-    //        }
-    //    }
-    //    else
-    //    {
-    //        // 如果没有碰到任何障碍物，激光达到最大射程
-    //        lineRenderer.SetPosition(1, startPosition + laserDirection.normalized * laserMaxDistance); // 激光的反射点
-    //        lineRenderer.SetPosition(2, startPosition + laserDirection.normalized * laserMaxDistance); // 激光的终点
-
-    //        // 检测是否击中敌人
-    //        if (Physics.Raycast(startPosition, laserDirection, out hit, laserMaxDistance, enemyLayer))
-    //        {
-    //            EnemyPYPTest enemyHealth = hit.collider.GetComponent<EnemyPYPTest>();
-    //            if (enemyHealth != null)
-    //            {
-    //                enemyHealth.health -= damageAmount; // 对敌人造成伤害
-    //            }
-    //        }
-    //    }
-    //}
-
-
+    //激光穿透敌人版本
     private void UpdateLaser(Vector3 targetPosition)
     {
         // 激光的起始点是武器的位置
@@ -144,7 +77,7 @@ public class LaserWeapon : MonoBehaviour
         while (reflections <= maxReflections)
         {
             // 射线检测
-            if (Physics.Raycast(currentPosition, currentDirection, out hit, laserMaxDistance, obstacleLayer))
+            if (Physics.Raycast(currentPosition, currentDirection, out hit, laserMaxDistance, obstacleLayer | enemyLayer))
             {
                 // 更新激光的终点或反射点
                 lineRenderer.positionCount++;
@@ -153,18 +86,23 @@ public class LaserWeapon : MonoBehaviour
                 // 检测是否击中敌人
                 if ((enemyLayer & (1 << hit.collider.gameObject.layer)) != 0)
                 {
-                    // 击中敌人，停止反射
+                    // 击中敌人，但继续穿透
                     EnemyPYPTest enemyHealth = hit.collider.GetComponent<EnemyPYPTest>();
                     if (enemyHealth != null)
                     {
-                        enemyHealth.health -= damageAmount*(maxReflections-reflections); // 对敌人造成伤害
+                        enemyHealth.health -= damageAmount * (maxReflections - reflections); // 对敌人造成伤害
                         Instantiate(explosionPrefab, hit.point, Quaternion.identity);
                     }
-                    break; // 停止反射，因为激光击中了敌人
+
+                    // 减少一次反射机会，但继续穿透敌人
+                    reflections++;
+                    currentPosition = hit.point + currentDirection.normalized * 0.01f; // 继续从敌人后面一点的位置
+                                                                                       // 这里继续用相同的 `currentDirection`，表示穿透后继续向前
+                    continue; // 继续下一次反射或穿透检测
                 }
                 else
                 {
-                    // 如果没有击中敌人，继续反射
+                    // 没有击中敌人，反射
                     Instantiate(explosionPrefab, hit.point, Quaternion.identity);
                     currentDirection = Vector3.Reflect(currentDirection.normalized, hit.normal); // 计算反射方向
                     currentPosition = hit.point; // 更新反射起点
@@ -179,20 +117,10 @@ public class LaserWeapon : MonoBehaviour
                 break; // 退出循环，激光已经达到最大射程
             }
         }
-
-        // 检测是否在激光的最大范围内击中敌人
-        if (Physics.Raycast(currentPosition, currentDirection, out hit, laserMaxDistance, enemyLayer))
-        {
-            EnemyPYPTest enemyHealth = hit.collider.GetComponent<EnemyPYPTest>();
-            if (enemyHealth != null)
-            {
-                Instantiate(explosionPrefab, hit.point, Quaternion.identity);
-                enemyHealth.health -= damageAmount*maxReflections; // 对敌人造成伤害
-            }
-        }
     }
 
 
+    //激光不穿透敌人版本
     //private void UpdateLaser(Vector3 targetPosition)
     //{
     //    // 激光的起始点是武器的位置
@@ -202,235 +130,62 @@ public class LaserWeapon : MonoBehaviour
     //    // 使用射线检测
     //    RaycastHit hit;
     //    float laserMaxDistance = 100f;
+    //    int reflections = 0; // 当前反射次数
 
     //    // 初始化激光线段位置
+    //    lineRenderer.positionCount = 1; // 动态调整点的数量
     //    lineRenderer.SetPosition(0, startPosition); // 激光的起点
-    //    lineRenderer.SetPosition(1, startPosition); // 初始化反射点与起点相同
 
-    //    // 第一次射线检测
-    //    if (Physics.Raycast(startPosition, laserDirection, out hit, laserMaxDistance, obstacleLayer))
+    //    Vector3 currentPosition = startPosition;
+    //    Vector3 currentDirection = laserDirection;
+
+    //    while (reflections <= maxReflections)
     //    {
-    //        // 更新反射点
-    //        Vector3 reflectionPoint = startPosition;
-    //        lineRenderer.SetPosition(1, reflectionPoint); // 激光的反射点
-    //        // 计算反射方向
-    //        Vector3 reflectDirection = targetPosition - startPosition;
-    //        // 检测是否击中敌人
-    //        if ((enemyLayer & (1 << hit.collider.gameObject.layer)) != 0)
+    //        // 射线检测
+    //        if (Physics.Raycast(currentPosition, currentDirection, out hit, laserMaxDistance, obstacleLayer))
     //        {
-    //            EnemyPYPTest enemyHealth = hit.collider.GetComponent<EnemyPYPTest>();
-    //            if (enemyHealth != null)
-    //            {
-    //                enemyHealth.health = enemyHealth.health - damageAmount; // 对敌人造成伤害
-    //                Instantiate(explosionPrefab, hit.point, Quaternion.identity);
-    //            }
-    //        }
-    //        else
-    //        {
-    //            // 更新反射点
-    //            reflectionPoint = hit.point;
-    //            lineRenderer.SetPosition(1, reflectionPoint); // 激光的反射点
-    //                                                          // 计算反射方向
-    //            reflectDirection = Vector3.Reflect(laserDirection.normalized, hit.normal);
-    //            Instantiate(explosionPrefab, hit.point, Quaternion.identity);
-    //        }
+    //            // 更新激光的终点或反射点
+    //            lineRenderer.positionCount++;
+    //            lineRenderer.SetPosition(reflections + 1, hit.point); // 添加新的激光点
 
-    //        // 第二次射线检测（从反射点开始）
-    //        if (Physics.Raycast(reflectionPoint, reflectDirection, out hit, laserMaxDistance, obstacleLayer))
-    //        {
-    //            // 更新终点为碰撞点
-    //            lineRenderer.SetPosition(2, hit.point); // 激光的终点是第二次碰撞点
-    //            Instantiate(explosionPrefab, hit.point, Quaternion.identity);
     //            // 检测是否击中敌人
     //            if ((enemyLayer & (1 << hit.collider.gameObject.layer)) != 0)
     //            {
+    //                // 击中敌人，停止反射
     //                EnemyPYPTest enemyHealth = hit.collider.GetComponent<EnemyPYPTest>();
     //                if (enemyHealth != null)
     //                {
-    //                    enemyHealth.health = enemyHealth.health - damageAmount; // 对敌人造成伤害
+    //                    enemyHealth.health -= damageAmount*(maxReflections-reflections); // 对敌人造成伤害
     //                    Instantiate(explosionPrefab, hit.point, Quaternion.identity);
     //                }
+    //                break; // 停止反射，因为激光击中了敌人
+    //            }
+    //            else
+    //            {
+    //                // 如果没有击中敌人，继续反射
+    //                Instantiate(explosionPrefab, hit.point, Quaternion.identity);
+    //                currentDirection = Vector3.Reflect(currentDirection.normalized, hit.normal); // 计算反射方向
+    //                currentPosition = hit.point; // 更新反射起点
+    //                reflections++; // 增加反射次数
     //            }
     //        }
     //        else
     //        {
     //            // 如果没有碰到障碍物，激光达到最大射程
-    //            lineRenderer.SetPosition(2, reflectionPoint + reflectDirection * laserMaxDistance); // 激光的终点
+    //            lineRenderer.positionCount++;
+    //            lineRenderer.SetPosition(reflections + 1, currentPosition + currentDirection.normalized * laserMaxDistance); // 激光的终点
+    //            break; // 退出循环，激光已经达到最大射程
     //        }
     //    }
-    //    else
+
+    //    // 检测是否在激光的最大范围内击中敌人
+    //    if (Physics.Raycast(currentPosition, currentDirection, out hit, laserMaxDistance, enemyLayer))
     //    {
-    //        // 如果没有碰到障碍物，激光达到最大射程
-    //        lineRenderer.SetPosition(1, startPosition + laserDirection.normalized * laserMaxDistance); // 激光的反射点
-    //        lineRenderer.SetPosition(2, startPosition + laserDirection.normalized * laserMaxDistance); // 激光的终点
-
-    //        // 检测是否击中敌人
-    //        if (Physics.Raycast(startPosition, laserDirection, out hit, laserMaxDistance, enemyLayer))
+    //        EnemyPYPTest enemyHealth = hit.collider.GetComponent<EnemyPYPTest>();
+    //        if (enemyHealth != null)
     //        {
-    //            EnemyPYPTest enemyHealth = hit.collider.GetComponent<EnemyPYPTest>();
-    //            if (enemyHealth != null)
-    //            {
-    //                Instantiate(explosionPrefab, hit.point, Quaternion.identity);
-    //                enemyHealth.health = enemyHealth.health - damageAmount; // 对敌人造成伤害
-    //            }
-    //        }
-    //    }
-    //}
-
-    //private void UpdateLaser(Vector3 targetPosition)
-    //{
-    //    // 激光的起始点是武器的位置
-    //    Vector3 startPosition = transform.position;
-    //    Vector3 laserDirection = targetPosition - startPosition;
-
-    //    // 使用射线检测
-    //    RaycastHit hit;
-    //    float laserMaxDistance = 100f;
-
-    //    // 初始化激光线段位置
-    //    lineRenderer.SetPosition(0, startPosition); // 激光的起点
-    //    lineRenderer.SetPosition(1, startPosition); // 初始化反射点与起点相同
-
-    //    // 第一次射线检测
-    //    if (Physics.Raycast(startPosition, laserDirection, out hit, laserMaxDistance, obstacleLayer))
-    //    {
-    //        // 更新反射点
-    //        Vector3 reflectionPoint = startPosition;
-    //        lineRenderer.SetPosition(1, reflectionPoint); // 激光的反射点
-    //        // 计算反射方向
-    //        Vector3 reflectDirection = targetPosition - startPosition;
-    //        // 检测是否击中敌人
-    //        if ((enemyLayer & (1 << hit.collider.gameObject.layer)) != 0)
-    //        {
-    //            EnemyPYPTest enemyHealth = hit.collider.GetComponent<EnemyPYPTest>();
-    //            if (enemyHealth != null)
-    //            {
-    //                enemyHealth.health = enemyHealth.health - damageAmount; // 对敌人造成伤害
-    //                Instantiate(explosionPrefab, hit.point, Quaternion.identity);
-    //            }
-    //        }
-    //        else
-    //        {
-    //            // 更新反射点
-    //            reflectionPoint = hit.point;
-    //            lineRenderer.SetPosition(1, reflectionPoint); // 激光的反射点
-    //                                                          // 计算反射方向
-    //            reflectDirection = Vector3.Reflect(laserDirection.normalized, hit.normal);
     //            Instantiate(explosionPrefab, hit.point, Quaternion.identity);
-    //        }
-
-    //        // 第二次射线检测（从反射点开始）
-    //        if (Physics.Raycast(reflectionPoint, reflectDirection, out hit, laserMaxDistance, obstacleLayer))
-    //        {
-    //            // 更新终点为碰撞点
-    //            lineRenderer.SetPosition(2, hit.point); // 激光的终点是第二次碰撞点
-    //            Instantiate(explosionPrefab, hit.point, Quaternion.identity);
-    //            // 检测是否击中敌人
-    //            if ((enemyLayer & (1 << hit.collider.gameObject.layer)) != 0)
-    //            {
-    //                EnemyPYPTest enemyHealth = hit.collider.GetComponent<EnemyPYPTest>();
-    //                if (enemyHealth != null)
-    //                {
-    //                    enemyHealth.health = enemyHealth.health - damageAmount; // 对敌人造成伤害
-    //                    Instantiate(explosionPrefab, hit.point, Quaternion.identity);
-    //                }
-    //            }
-    //        }
-    //        else
-    //        {
-    //            // 如果没有碰到障碍物，激光达到最大射程
-    //            lineRenderer.SetPosition(2, reflectionPoint + reflectDirection * laserMaxDistance); // 激光的终点
-    //        }
-    //    }
-    //    else
-    //    {
-    //        // 如果没有碰到障碍物，激光达到最大射程
-    //        lineRenderer.SetPosition(1, startPosition + laserDirection.normalized * laserMaxDistance); // 激光的反射点
-    //        lineRenderer.SetPosition(2, startPosition + laserDirection.normalized * laserMaxDistance); // 激光的终点
-
-    //        // 检测是否击中敌人
-    //        if (Physics.Raycast(startPosition, laserDirection, out hit, laserMaxDistance, enemyLayer))
-    //        {
-    //            EnemyPYPTest enemyHealth = hit.collider.GetComponent<EnemyPYPTest>();
-    //            if (enemyHealth != null)
-    //            {
-    //                Instantiate(explosionPrefab, hit.point, Quaternion.identity);
-    //                enemyHealth.health = enemyHealth.health - damageAmount; // 对敌人造成伤害
-    //            }
-    //        }
-    //    }
-    //}
-
-    //private void UpdateLaser(Vector3 targetPosition)
-    //{
-    //    // 激光的起始点是武器的位置
-    //    Vector3 startPosition = transform.position;
-    //    Vector3 laserDirection = targetPosition - startPosition;
-
-    //    // 使用射线检测
-    //    RaycastHit hit;
-    //    float laserMaxDistance = 100f;
-
-    //    // 初始化激光线段位置
-    //    lineRenderer.SetPosition(0, startPosition); // 激光的起点
-    //    lineRenderer.SetPosition(1, startPosition); // 初始化反射点与起点相同
-
-    //    // 第一次射线检测
-    //    if (Physics.Raycast(startPosition, laserDirection, out hit, laserMaxDistance, obstacleLayer))
-    //    {
-    //        // 更新反射点
-    //        Vector3 reflectionPoint = hit.point;
-    //        lineRenderer.SetPosition(1, reflectionPoint); // 激光的反射点
-
-    //        // 检测是否击中敌人
-    //        if ((enemyLayer & (1 << hit.collider.gameObject.layer)) != 0)
-    //        {
-    //            EnemyPYPTest enemyHealth = hit.collider.GetComponent<EnemyPYPTest>();
-    //            if (enemyHealth != null)
-    //            {
-    //                enemyHealth.health = enemyHealth.health - damageAmount; // 对敌人造成伤害
-    //            }
-    //        }
-
-    //        // 计算反射方向
-    //        Vector3 reflectDirection = Vector3.Reflect(laserDirection.normalized, hit.normal);
-
-    //        // 第二次射线检测（从反射点开始）
-    //        if (Physics.Raycast(reflectionPoint, reflectDirection, out hit, laserMaxDistance, obstacleLayer))
-    //        {
-    //            // 更新终点为碰撞点
-    //            lineRenderer.SetPosition(2, hit.point); // 激光的终点是第二次碰撞点
-
-    //            // 检测是否击中敌人
-    //            if ((enemyLayer & (1 << hit.collider.gameObject.layer)) != 0)
-    //            {
-    //                EnemyPYPTest enemyHealth = hit.collider.GetComponent<EnemyPYPTest>();
-    //                if (enemyHealth != null)
-    //                {
-    //                    enemyHealth.health = enemyHealth.health - damageAmount; // 对敌人造成伤害
-    //                }
-    //            }
-    //        }
-    //        else
-    //        {
-    //            // 如果没有碰到障碍物，激光达到最大射程
-    //            lineRenderer.SetPosition(2, reflectionPoint + reflectDirection * laserMaxDistance); // 激光的终点
-    //        }
-    //    }
-    //    else
-    //    {
-    //        // 如果没有碰到障碍物，激光达到最大射程
-    //        lineRenderer.SetPosition(1, startPosition + laserDirection.normalized * laserMaxDistance); // 激光的反射点
-    //        lineRenderer.SetPosition(2, startPosition + laserDirection.normalized * laserMaxDistance); // 激光的终点
-
-    //        // 检测是否击中敌人
-    //        if (Physics.Raycast(startPosition, laserDirection, out hit, laserMaxDistance, enemyLayer))
-    //        {
-    //            EnemyPYPTest enemyHealth = hit.collider.GetComponent<EnemyPYPTest>();
-    //            if (enemyHealth != null)
-    //            {
-    //                enemyHealth.health = enemyHealth.health - damageAmount; // 对敌人造成伤害
-    //            }
+    //            enemyHealth.health -= damageAmount*maxReflections; // 对敌人造成伤害
     //        }
     //    }
     //}
