@@ -257,8 +257,9 @@ MonoBehaviour:
   enemyLayer:
     serializedVersion: 2
     m_Bits: 128
-  damageAmount: 0.1
+  damageAmount: 0.025
   explosionPrefab: {fileID: 855191847506010186, guid: b71751dca3e93af42bc7e0bb6b39e82e, type: 3}
+  maxReflections: 4
 --- !u!114 &275912228
 MonoBehaviour:
   m_ObjectHideFlags: 0
