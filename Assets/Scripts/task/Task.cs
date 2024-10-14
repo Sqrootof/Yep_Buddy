@@ -1,4 +1,4 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 
 public enum TaskStatus
 {
@@ -10,13 +10,13 @@ public enum TaskStatus
 [System.Serializable]
 public class Task
 {
-    public string taskName; // ÈÎÎñÃû³Æ
-    public string description; // ÈÎÎñÃèÊö
-    public Vector3 trackingCoordinates; // ×·×ÙµÄ×ø±ê
+    public string taskName; // ä»»åŠ¡åç§°
+    public string description; // ä»»åŠ¡æè¿°
+    public Vector3 trackingCoordinates; // è¿½è¸ªçš„åæ ‡
 
-    public bool isAccepted = false; // ÊÇ·ñÒÑ½ÓÈ¡
-    public bool isCompleted = false; // ÊÇ·ñÒÑÍê³É
-    public bool isTracking = false; // ÊÇ·ñÕıÔÚ±»×·×Ù
+    public bool isAccepted = false; // æ˜¯å¦å·²æ¥å–
+    public bool isCompleted = false; // æ˜¯å¦å·²å®Œæˆ
+    public bool isTracking = false; // æ˜¯å¦æ­£åœ¨è¢«è¿½è¸ª
 
     public TaskStatus status = TaskStatus.NotStarted;
 
@@ -26,7 +26,6 @@ public class Task
         status = TaskStatus.InProgress;
         Debug.Log("Task accepted: " + taskName);
     }
-
     public void CompleteQuest()
     {
         isCompleted = true;
@@ -34,16 +33,15 @@ public class Task
         Debug.Log("Task completed: " + taskName);
     }
 
-    // ¼ì²éÈÎÎñÊÇ·ñÏÔÊ¾ÔÚÈÎÎñÀ¸
+    // æ£€æŸ¥ä»»åŠ¡æ˜¯å¦æ˜¾ç¤ºåœ¨ä»»åŠ¡æ 
     public bool ShouldDisplayInUI()
     {
         return isAccepted && !isCompleted;
     }
 
-    // ÅĞ¶ÏÊÇ·ñÄÜÍê³ÉÈÎÎñ (¿ÉÒÔ¸ù¾İÄã¾ßÌåµÄÅĞ¶¨·½·¨¸üĞÂ)
+    // åˆ¤æ–­æ˜¯å¦èƒ½å®Œæˆä»»åŠ¡ (å¯ä»¥æ ¹æ®ä½ å…·ä½“çš„åˆ¤å®šæ–¹æ³•æ›´æ–°)
     public bool CanComplete()
     {
-        // ÈÎÎñÍê³ÉÅĞ¶¨Âß¼­
         return isCompleted;
     }
 }

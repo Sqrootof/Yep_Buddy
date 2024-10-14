@@ -1,36 +1,36 @@
-using System.Collections.Generic;
+ï»¿using System.Collections.Generic;
 using UnityEngine;
 
 public class TaskManager : MonoBehaviour
 {
-    public List<Task> questList = new List<Task>(); // ÈÎÎñÁĞ±í
-    private Task trackedTask = null; // µ±Ç°±»×·×ÙµÄÈÎÎñ
+    //public List<Task> questList = new List<Task>(); // ä»»åŠ¡åˆ—è¡¨
+    private Task trackedTask = null; // å½“å‰è¢«è¿½è¸ªçš„ä»»åŠ¡
 
-    // Ìí¼ÓÈÎÎñ
+    // æ·»åŠ ä»»åŠ¡
     public void AddQuest(Task task)
     {
-        questList.Add(task);
+        Whole.questList.Add(task);
     }
 
-    // ÇĞ»»ÈÎÎñ×·×Ù×´Ì¬
+    // åˆ‡æ¢ä»»åŠ¡è¿½è¸ªçŠ¶æ€
     public void ToggleTracking(Task task)
     {
         if (task.isTracking)
         {
-            // È¡Ïû×·×Ù
+            // å–æ¶ˆè¿½è¸ª
             task.isTracking = false;
             trackedTask = null;
             Debug.Log("Tracking canceled for: " + task.taskName);
         }
         else
         {
-            // Èç¹ûÒÑ¾­ÓĞÒ»¸öÈÎÎñÔÚ×·×Ù£¬ÏÈÈ¡ÏûËüµÄ×·×Ù
+            // å¦‚æœå·²ç»æœ‰ä¸€ä¸ªä»»åŠ¡åœ¨è¿½è¸ªï¼Œå…ˆå–æ¶ˆå®ƒçš„è¿½è¸ª
             if (trackedTask != null)
             {
                 trackedTask.isTracking = false;
             }
 
-            // ×·×Ùµ±Ç°ÈÎÎñ
+            // è¿½è¸ªå½“å‰ä»»åŠ¡
             task.isTracking = true;
             trackedTask = task;
             Debug.Log("Tracking task: " + task.taskName);
