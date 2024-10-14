@@ -7,14 +7,14 @@ using UnityEngine.Pool;
 
 public class ShootController : MonoBehaviour
 {
-    #region"Éä»÷Ïà¹Ø"
-    [SerializeField]List<Bullet> Bullets = new();//µ±Ç°´îÔØµÄ×Óµ¯
+    #region"å°„å‡»ç›¸å…³"
+    [SerializeField]List<Bullet> Bullets = new();//å½“å‰æ­è½½çš„å­å¼¹
 
-    [SerializeField]List<Projectile> CurrentProjectileBlock = new();//µ±Ç°×Óµ¯¿é
-    [SerializeField]List<Gain> CurrentGainsBlock = new();//µ±Ç°ÔöÒæ¿é
-    float Cooldown = 0;//ÀäÈ´Ê±¼ä
-    float LastShootTime = -1;//ÉÏ´ÎÉä»÷Ê±¼ä
-    [SerializeField]int BlockHeadIndex = 0;//µ±Ç°×Óµ¯¿éÆğÊ¼Î»ÖÃ
+    [SerializeField]List<Projectile> CurrentProjectileBlock = new();//ä¸‹ä¸€ä¸ªè¦å°„å‡»çš„å­å¼¹å—
+    [SerializeField]List<Gain> CurrentGainsBlock = new();//ä¸‹ä¸€ä¸ªè¦æ­è½½çš„å¢ç›Šå—
+    float Cooldown = 0;//å°„å‡»å†·å´æ—¶é—´
+    float LastShootTime = -1;
+    [SerializeField]int BlockHeadIndex = 0;//ä¸‹ä¸€ä¸ªå­å¼¹å—çš„å¤´éƒ¨ç´¢å¼•
     #endregion
 
     // Start is called before the first frame update
@@ -35,7 +35,6 @@ public class ShootController : MonoBehaviour
 
     public void Shoot()
     { 
-        //»ñÈ¡µ½ÏÂÒ»¸ö×Óµ¯¿é
         GetNextBulletBlock();
         Cooldown = 0;
         foreach (var Projectile in CurrentProjectileBlock)
@@ -47,12 +46,15 @@ public class ShootController : MonoBehaviour
                 gain.DeployGain(newData);
             }
             GameObject newbullet = Instantiate(Projectile.Prefab);
-            newbullet.GetComponent<ProjectileHandler>().SetProjectileData(Projectile);
+            ProjectileHandler Handler = newbullet.GetComponent<ProjectileHandler>();
+            Handler.SetProjectileData(newData);
+            
+            Handler.BeShoot(transform.position,Camera.main.ScreenToWorldPoint(Input.mousePosition));
         }
     }
 
     /// <summary>
-    /// »ñÈ¡µ½ÏÂÒ»¸ö×Óµ¯¿é
+    /// è·å–ä¸‹ä¸€ä¸ªå­å¼¹å—
     /// </summary>
     /// <returns></returns>
     void  GetNextBulletBlock()

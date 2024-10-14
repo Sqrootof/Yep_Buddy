@@ -8,8 +8,8 @@ public class Gain_Laser : Gain
     public new GainType GainType {
         get => GainType.Laser;
     }
-    [SerializeField]float Gain_LaserLength=1;
-    [SerializeField]float Gain_LaserWidth=1;
+    [SerializeField]float Gain_LaserLength = 1;
+    [SerializeField]float Gain_LaserWidth = 1;
 
     public override void DeployGain(Projectile Projectile)
     {

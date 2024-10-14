@@ -10,5 +10,6 @@ public class Bomb : Projectile
     }
 
     [Space]
+    public bool useGravity;
     public float BombRadius;
 }

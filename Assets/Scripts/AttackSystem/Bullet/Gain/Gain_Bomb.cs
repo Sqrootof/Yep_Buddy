@@ -9,7 +9,7 @@ public class Gain_Bomb : Gain
         get => GainType.Bomb;
     }
 
-    [SerializeField] float Gain_BombRadius=1;
+    [SerializeField] float Gain_BombRadius = 1;
 
     public override void DeployGain(Projectile Projectile)
     {

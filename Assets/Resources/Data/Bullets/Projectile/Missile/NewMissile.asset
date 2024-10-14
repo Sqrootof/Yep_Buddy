@@ -15,11 +15,13 @@ MonoBehaviour:
   BulletName: 
   Icon: {fileID: 0}
   BulletType: 0
+  ExternalFunction: {fileID: 0}
   ProjectileType: 0
-  InitialVelocity: 0
-  OffsetAngle: 0
+  InitialVelocity: 10
+  OffsetAngle: 2.5
   Damage: 0
-  LifeTime: 0
+  LifeTime: 100000
   CoolDown: 0
   SelfDamage: 0
-  Prefab: {fileID: 0}
+  Prefab: {fileID: 9163245249547095048, guid: 31bac093089466e4bb894e9cef7ada07, type: 3}
+  Tail: {fileID: 0}

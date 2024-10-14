@@ -15,36 +15,38 @@ public class ProjectileHandler : MonoBehaviour
     public ProjectileLifeEvent OnProjectileSleep;
     public ProjectileLifeEvent OnProjectileHit;
     public ProjectileLifeEvent OnProjectileFly;
+
+    bool ReadyToDestroy = false;
     // Start is called before the first frame update
-    void Start()
+    public void Start()
     {
         AwakeTime = Time.time;
+        ComponentInit();
     }
 
     // Update is called once per frame
-    void Update()
+    public void Update()
     {
         if (Time.time - AwakeTime >= ProjectileData.LifeTime)
             DestroyProjectile();
-                        
-    }
-
-    private void OnCollisionEnter2D(Collision2D collision)
-    {
-        
-    }
-
-    private void OnTriggerEnter2D(Collider2D collision)
-    {
-        
     }
 
     public void DestroyProjectile()
     {
         if (OnProjectileSleep != null)
             StartCoroutine(OnProjectileSleep());
+        else
+            Destroy(gameObject);
 
-        Destroy(gameObject,0.15f);
+        StartCoroutine(IEDestroy());
+    }
+
+    IEnumerator IEDestroy()
+    {
+        while (!ReadyToDestroy){
+            yield return null;
+        }
+        Destroy(gameObject);
     }
 
     public void SetProjectileData(Projectile projectile){ 
@@ -54,4 +56,8 @@ public class ProjectileHandler : MonoBehaviour
     public ProjectileHandler(Projectile projectile){ 
         ProjectileData = projectile;
     }
+
+    public virtual void BeShoot(Vector3 StartPos, Vector3 MousePos) { }
+
+    protected virtual void ComponentInit() { }
 }
